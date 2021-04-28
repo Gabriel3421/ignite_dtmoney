@@ -1,12 +1,18 @@
 import logo from '../../assets/logo.svg';
 import { Container, Content } from './styles'
 
-export function Header() {
+interface HeaderProps {
+  setIsVisible: (isVisible: boolean) => void;
+}
+
+export function Header({ setIsVisible }: HeaderProps) {
+  
+
   return (
     <Container>
       <Content>
         <img src={logo} alt="dt money"/>
-        <button type="button">
+        <button type="button" onClick={()=> setIsVisible(true)}>
           Nova transação
         </button>
       </Content>

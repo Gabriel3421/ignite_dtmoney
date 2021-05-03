@@ -1,8 +1,10 @@
+import { FormEvent, useState } from 'react';
 import Modal from 'react-modal';
 import close from '../../assets/close.svg';
 import income from '../../assets/income.svg';
 import outcome from '../../assets/outcome.svg';
-import { Container, Section } from './styles';
+import { api } from '../../service/api';
+import { Container, Section, RadioBox } from './styles';
 
 interface NewTransactionModalProps {
   isVisible: boolean;
@@ -10,6 +12,21 @@ interface NewTransactionModalProps {
 }
 
 export function NewTransactionModal ({ isVisible, setIsVisible}: NewTransactionModalProps){
+  const [type, setType] = useState('deposit')
+  const [title, setTitle] = useState('')
+  const [category, setCategory] = useState('')
+  const [value, setValue] = useState(0)
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    const data = {
+      title,
+      value,
+      category,
+      type
+    }
+    api.post('/transactions', data)
+  }
   return (
     <Modal
         isOpen={isVisible}
@@ -24,25 +41,31 @@ export function NewTransactionModal ({ isVisible, setIsVisible}: NewTransactionM
         >
           <img src={close} alt="Fechar modal"/>
         </button>
-        <Container>
+        <Container onSubmit={handleSubmit}>
           <h2>Cadastrar Transação</h2>
-          <input placeholder="Titulo" />
-          <input placeholder="Valor" type="number" />
+          <input placeholder="Titulo" value={title} onChange={(e)=> setTitle(e.target.value)} />
+          <input placeholder="Valor" type="number" value={value} onChange={(e)=> setValue(Number(e.target.value))} />
           <Section>
-            <button
+            <RadioBox
               type="button"
+              onClick={()=> setType('deposit')}
+              isActive={type==='deposit'}
+              activeColor="green"
             >
               <img src={income} alt="Entradas"/>
               <span>Entradas</span>
-            </button>
-            <button
+            </RadioBox>
+            <RadioBox
               type="button"
+              onClick={()=> setType('withdraw')}
+              isActive={type==='withdraw'}
+              activeColor="red"
             >
               <img src={outcome} alt="Saidas"/>
               <span>Saidas</span>
-            </button>
+            </RadioBox>
           </Section>
-          <input placeholder="Categoria" />
+          <input placeholder="Categoria" value={category} onChange={(e)=> setCategory(e.target.value)} />
           <button type="submit">Cadastrar</button>
         </Container>
       </Modal>

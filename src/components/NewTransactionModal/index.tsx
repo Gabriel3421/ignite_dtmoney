@@ -1,9 +1,10 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useContext, useState } from 'react';
 import Modal from 'react-modal';
 import close from '../../assets/close.svg';
 import income from '../../assets/income.svg';
 import outcome from '../../assets/outcome.svg';
 import { api } from '../../service/api';
+import { TransactionsContext } from '../../TransactionsContext';
 import { Container, Section, RadioBox } from './styles';
 
 interface NewTransactionModalProps {
@@ -12,20 +13,25 @@ interface NewTransactionModalProps {
 }
 
 export function NewTransactionModal ({ isVisible, setIsVisible}: NewTransactionModalProps){
+  const {createTransaction} = useContext(TransactionsContext)
   const [type, setType] = useState('deposit')
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('')
-  const [value, setValue] = useState(0)
+  const [amount, setAmount] = useState(0)
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    const data = {
-      title,
-      value,
+    await createTransaction({
+      amount,
       category,
-      type
-    }
-    api.post('/transactions', data)
+      title,
+      type,
+    })
+    setAmount(0);
+    setCategory('');
+    setTitle('');
+    setType('deposit');
+    setIsVisible(false)
   }
   return (
     <Modal
@@ -44,7 +50,7 @@ export function NewTransactionModal ({ isVisible, setIsVisible}: NewTransactionM
         <Container onSubmit={handleSubmit}>
           <h2>Cadastrar Transação</h2>
           <input placeholder="Titulo" value={title} onChange={(e)=> setTitle(e.target.value)} />
-          <input placeholder="Valor" type="number" value={value} onChange={(e)=> setValue(Number(e.target.value))} />
+          <input placeholder="Valor" type="number" value={amount} onChange={(e)=> setAmount(Number(e.target.value))} />
           <Section>
             <RadioBox
               type="button"
